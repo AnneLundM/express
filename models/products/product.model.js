@@ -16,6 +16,18 @@ export const create = async (body) => {
   };
 };
 
+// Update
+export const findByIdAndUpdate = async (id, updatedData) => {
+  // Fejl: = i stedet for =>
+  const index = products.findIndex((p) => p.id === id);
+  if (index === -1) return null;
+
+  // Erstat produktet med en ny version (behold det gamle og overskriv med nye værdier)
+  products[index] = { ...products[index], ...updatedData };
+
+  return products[index];
+};
+
 // Delete
 export const findByIdAndDelete = async (id) => {
   const index = products.findIndex((p) => p.id === id);
@@ -28,3 +40,6 @@ export const findByIdAndDelete = async (id) => {
 
   return deleted;
 };
+
+// Get by ID
+export const findById = async (id) => products.find((p) => p.id === id);

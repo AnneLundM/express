@@ -21,24 +21,44 @@ export const createProduct = async (body) => {
   }
 };
 
+// Update
+export const updateProduct = async (body) => {
+  try {
+    const product = await productModel.findById(body.id);
+
+    if (!product) {
+      throw new Error("Produkt ikke fundet", error);
+    }
+
+    // Henter id - resten bliver lagt i et nyt objekt vi kalder updatedData
+    const { id, ...updatedData } = body;
+
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      id,
+      updatedData
+    );
+    return updatedProduct;
+  } catch (error) {
+    throw new Error("Opdatering af produktet fejlede:", error);
+  }
+};
+
 // Delete
 export const deleteProduct = async (id) => {
   try {
     const deletedProduct = await productModel.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
-      return {
-        status: "Produkt ikke fundet!",
-      };
-    }
-
-    return {
-      status: "ok",
-      message: "Produktet er slettet!",
-    };
+    return deletedProduct;
   } catch (error) {
-    return {
-      status: "error",
-    };
+    throw new Error("Der skete en fejl under sletning af produkt:", error);
+  }
+};
+
+// Get by ID
+export const getProductById = async (id) => {
+  try {
+    const product = await productModel.findById(id);
+    return product;
+  } catch (error) {
+    throw new Error("Der skete en fejl:", error);
   }
 };

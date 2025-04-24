@@ -2,7 +2,9 @@ import express from "express";
 import {
   createProduct,
   deleteProduct,
+  getProductById,
   getProducts,
+  updateProduct,
 } from "../../handlers/products/product.handler.js";
 
 const productRoute = express.Router();
@@ -58,6 +60,50 @@ productRoute.post("/product", async (req, res) => {
   }
 });
 
+// Update
+productRoute.put("/product", async (req, res) => {
+  try {
+    // Destrukturerer de forventede felter fra request body
+    const { id, title, description, price, category } = req.body;
+
+    // Tjek om ID er til stede
+    if (!id) {
+      return res.status(400).send({
+        status: "error",
+        message: "Product ID mangler!",
+        data: [],
+      });
+    }
+
+    // Hvis fx description ikke opdateres, bliver den gamle værdi sendt med
+    if (!title || !description || !price || !category) {
+      return res.status(400).send({
+        status: "error",
+        message:
+          "Produktet mangler title, description, price og/eller category",
+        data: [],
+      });
+    }
+
+    const updatedData = { id, title, description, price, category };
+
+    const result = await updateProduct(updatedData);
+
+    return res.status(200).send({
+      status: "ok",
+      message: "Produkt opdateret!",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return res.status(500).send({
+      status: "error",
+      product: "Internal server error",
+      error: error.message,
+    });
+  }
+});
+
 // Delete
 productRoute.delete("/product/:id", async (req, res) => {
   try {
@@ -66,14 +112,52 @@ productRoute.delete("/product/:id", async (req, res) => {
     if (!id) {
       return res.status(400).send({
         status: "error",
+        message: "Produkt ID mangler!",
       });
     }
 
     const result = await deleteProduct(id);
 
-    return res.status(200).send(result);
-  } catch {
+    return res.status(200).send({
+      status: "ok",
+      message: "Produkt slettet!",
+      data: result.title,
+    });
+  } catch (error) {
     console.error("Der skete en fejl:", error);
+    return res.status(500).send({
+      status: "error",
+      product: "Internal server error",
+      error: error.message,
+    });
+  }
+});
+
+// Get by ID
+productRoute.get("/product/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send({
+        status: "error",
+        message: "Produkt ID mangler!",
+      });
+    }
+
+    const product = await getProductById(id);
+
+    return res.status(200).send({
+      status: "ok",
+      message: "Produkt hentet!",
+      data: product,
+    });
+  } catch (error) {
+    console.error("Fejl ved hentning af produkt:", error);
+    return res.status(500).send({
+      status: "error",
+      message: "Intern serverfejl",
+      error: error.message,
+    });
   }
 });
 
