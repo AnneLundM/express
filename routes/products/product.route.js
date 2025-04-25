@@ -6,8 +6,20 @@ import {
   getProducts,
   updateProduct,
 } from "../../handlers/products/product.handler.js";
+import multer from "multer";
 
 const productRoute = express.Router();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/products");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 // Get all products
 productRoute.get("/products", async (req, res) => {
@@ -30,9 +42,10 @@ productRoute.get("/products", async (req, res) => {
 });
 
 // Create
-productRoute.post("/product", async (req, res) => {
+productRoute.post("/product", upload.single("image"), async (req, res) => {
   try {
     const { title, description, price, category } = req.body;
+    // const image = req.file ? `${req.file.filename}` : "";
 
     if (!title) {
       return res.status(400).send({
@@ -42,6 +55,12 @@ productRoute.post("/product", async (req, res) => {
     }
 
     const product = { title, description, price, category };
+
+    // req.file bliver automatisk tilføjet af multer
+    if (req.file) {
+      product.image =
+        process.env.SERVER_HOST + "/products/" + req.file.filename;
+    }
 
     const result = await createProduct(product);
 
