@@ -1,8 +1,10 @@
-import * as productModel from "../../models/products/product.model.js";
+import dbConnect from "../../dbConnect.js";
+import productModel from "../../models/products/product.model.js";
 
 // Get all products
 export const getProducts = async () => {
   try {
+    await dbConnect();
     const products = await productModel.find({});
     return products;
   } catch (error) {
@@ -13,6 +15,7 @@ export const getProducts = async () => {
 // Create
 export const createProduct = async (body) => {
   try {
+    await dbConnect();
     const product = await productModel.create(body);
     return product;
   } catch (error) {
@@ -24,28 +27,27 @@ export const createProduct = async (body) => {
 // Update
 export const updateProduct = async (body) => {
   try {
+    await dbConnect();
     const product = await productModel.findById(body.id);
 
     if (!product) {
-      throw new Error("Produkt ikke fundet", error);
+      return null;
     }
 
-    // Henter id - resten bliver lagt i et nyt objekt vi kalder updatedData
-    const { id, ...updatedData } = body;
+    const { id, ...updateData } = body;
 
-    const updatedProduct = await productModel.findByIdAndUpdate(
-      id,
-      updatedData
-    );
+    const updatedProduct = await productModel.findByIdAndUpdate(id, updateData);
+
     return updatedProduct;
   } catch (error) {
-    throw new Error("Opdatering af produktet fejlede:", error);
+    throw new Error("Opdatering af produktet fejlede: " + error.message);
   }
 };
 
 // Delete
 export const deleteProduct = async (id) => {
   try {
+    await dbConnect();
     const deletedProduct = await productModel.findByIdAndDelete(id);
     return deletedProduct;
   } catch (error) {
@@ -56,6 +58,7 @@ export const deleteProduct = async (id) => {
 // Get by ID
 export const getProductById = async (id) => {
   try {
+    await dbConnect();
     const product = await productModel.findById(id);
     return product;
   } catch (error) {

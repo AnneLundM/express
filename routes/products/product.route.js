@@ -63,19 +63,17 @@ productRoute.post("/product", async (req, res) => {
 // Update
 productRoute.put("/product", async (req, res) => {
   try {
-    // Destrukturerer de forventede felter fra request body
     const { id, title, description, price, category } = req.body;
 
-    // Tjek om ID er til stede
     if (!id) {
       return res.status(400).send({
         status: "error",
-        message: "Product ID mangler!",
+        product: "Product ID mangler!",
         data: [],
       });
     }
 
-    // Hvis fx description ikke opdateres, bliver den gamle værdi sendt med
+    // Tjekker, om en eller flere af variablerne er undefined eller tomme
     if (!title || !description || !price || !category) {
       return res.status(400).send({
         status: "error",
@@ -85,9 +83,11 @@ productRoute.put("/product", async (req, res) => {
       });
     }
 
-    const updatedData = { id, title, description, price, category };
+    // Saml produktdata i et objekt
+    const productData = { id, title, description, price, category };
 
-    const result = await updateProduct(updatedData);
+    // Send det videre som argument til handler
+    const result = await updateProduct(productData);
 
     return res.status(200).send({
       status: "ok",
@@ -98,7 +98,7 @@ productRoute.put("/product", async (req, res) => {
     console.error("Error updating product:", error);
     return res.status(500).send({
       status: "error",
-      product: "Internal server error",
+      message: "Internal server error",
       error: error.message,
     });
   }
