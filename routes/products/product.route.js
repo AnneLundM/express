@@ -80,7 +80,7 @@ productRoute.post("/product", upload.single("image"), async (req, res) => {
 });
 
 // Update
-productRoute.put("/product", async (req, res) => {
+productRoute.put("/product", upload.single("image"), async (req, res) => {
   try {
     const { id, title, description, price, category } = req.body;
 

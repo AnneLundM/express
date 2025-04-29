@@ -8,6 +8,7 @@ const expressServer = express();
 // Tillader requests fra forskellige porte
 expressServer.use(cors());
 
+// Gør alle filer offentligt tilgængelige (servér dem fra serveren som de er)
 expressServer.use(express.static("uploads"));
 
 // For at kunne læse req.body i JSON
