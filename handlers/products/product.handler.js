@@ -1,4 +1,5 @@
 import dbConnect from "../../dbConnect.js";
+import { deleteProductImage } from "../../file.handler.js";
 import productModel from "../../models/products/product.model.js";
 
 // Get all products
@@ -31,7 +32,15 @@ export const updateProduct = async (body) => {
     const product = await productModel.findById(body.id);
 
     if (!product) {
-      return null;
+      return {
+        status: "error",
+        message: "Produkt ikke fundet",
+        data: [],
+      };
+    }
+
+    if (product.image && body.image) {
+      await deleteProductImage(product.image);
     }
 
     const { id, ...updateData } = body;
@@ -48,6 +57,18 @@ export const updateProduct = async (body) => {
 export const deleteProduct = async (id) => {
   try {
     await dbConnect();
+    const product = await productModel.findById(id);
+
+    if (!product) {
+      return {
+        status: "error",
+        message: "Produkt ikke fundet",
+        data: [],
+      };
+    }
+    if (product.image) {
+      await deleteProductImage(product.image);
+    }
     const deletedProduct = await productModel.findByIdAndDelete(id);
     return deletedProduct;
   } catch (error) {

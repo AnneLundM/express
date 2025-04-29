@@ -9,7 +9,7 @@ const expressServer = express();
 expressServer.use(cors());
 
 // Gør alle filer offentligt tilgængelige (servér dem fra serveren som de er)
-expressServer.use(express.static("uploads"));
+expressServer.use("/uploads", express.static("uploads"));
 
 // For at kunne læse req.body i JSON
 expressServer.use(express.json());

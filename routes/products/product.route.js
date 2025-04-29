@@ -59,7 +59,7 @@ productRoute.post("/product", upload.single("image"), async (req, res) => {
     // req.file bliver automatisk tilføjet af multer
     if (req.file) {
       product.image =
-        process.env.SERVER_HOST + "/products/" + req.file.filename;
+        process.env.SERVER_HOST + "/uploads/products/" + req.file.filename;
     }
 
     const result = await createProduct(product);
@@ -104,6 +104,12 @@ productRoute.put("/product", upload.single("image"), async (req, res) => {
 
     // Saml produktdata i et objekt
     const productData = { id, title, description, price, category };
+
+    // Hvis der er uploadet en ny fil, skal den med i produktData
+    if (req.file) {
+      const imageUrl = `${process.env.SERVER_HOST}/uploads/products/${req.file.filename}`;
+      productData.image = imageUrl;
+    }
 
     // Send det videre som argument til handler
     const result = await updateProduct(productData);
