@@ -1,5 +1,5 @@
 import dbConnect from "../../dbConnect.js";
-import { deleteProductImage } from "../../file.handler.js";
+import { deleteProductImage } from "../file.handler.js";
 import productModel from "../../models/products/product.model.js";
 
 // Get all products
