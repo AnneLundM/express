@@ -15,11 +15,9 @@ const deleteFile = async (image) => {
     }
 
     let absolutePath = path.join(__dirname, imgPath);
-    console.log("Prøver at slette:", absolutePath);
 
     if (fs.existsSync(absolutePath)) {
       fs.unlinkSync(absolutePath);
-      console.log(`Deleted image: ${absolutePath}`);
     } else {
       console.warn(`Filen findes ikke: ${absolutePath}`);
     }
