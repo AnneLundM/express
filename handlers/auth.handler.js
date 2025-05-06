@@ -2,8 +2,8 @@
 import bcryptjs from "bcryptjs";
 // JWT står for JSON Web Token, og bruges til at sende sikker og verificerbar information mellem to parter som et JSON-objekt.
 import jwt from "jsonwebtoken";
-// import userModel from "../models/user.model.js";
 import dbConnect from "../dbConnect.js";
+import userModel from "../models/users/user.model.js";
 
 // Funktion til at logge en bruger ind, baseret på credentials (email og password)
 export const signInUser = async (credentials) => {
@@ -15,17 +15,17 @@ export const signInUser = async (credentials) => {
 
     /* NÅR I HAR LAVET MODELLEN KAN DETTE INDKOMMENTERES */
 
-    // const user = await userModel.findOne({ email: credentials.email });
+    const user = await userModel.findOne({ email: credentials.email });
 
     /* TEST UDEN MODEL - NÅR I HAR LAVET MODELLEN KAN DETTE SLETTES */
-    const hashedPassword = await bcryptjs.hash("admin", 10); // lav en hash til testbrug
-    const user = {
-      email: "media@college.com",
-      hashedPassword,
-      name: "Test User",
-      role: "admin",
-      image: "https://via.placeholder.com/150",
-    };
+    // const hashedPassword = await bcryptjs.hash("admin", 10); // lav en hash til testbrug
+    // const user = {
+    //   email: "media@college.com",
+    //   hashedPassword,
+    //   name: "Test User",
+    //   role: "admin",
+    //   image: "https://via.placeholder.com/150",
+    // };
 
     /* TEST SLUT */
 

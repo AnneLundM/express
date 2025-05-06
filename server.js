@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import productRoute from "./routes/products/product.route.js";
 import authRoute from "./routes/auth/auth.js";
+import userRoute from "./routes/user/user.route.js";
 
 // Server
 const expressServer = express();
@@ -18,6 +19,7 @@ expressServer.use(express.json());
 // Routes
 expressServer.use(productRoute);
 expressServer.use(authRoute);
+expressServer.use(userRoute);
 
 expressServer.listen(3042, () => {
   console.log("Serveren kører på http://localhost:3042");
