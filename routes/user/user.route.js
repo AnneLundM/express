@@ -29,23 +29,25 @@ userRoute.get("/users", async (req, res) => {
   try {
     const result = await getUsers();
 
-    if (result.status === "ok") {
-      return res.status(200).send(result);
-    }
-
-    return res.status(500).send(result);
+    return res.status(200).send({
+      status: "ok",
+      message: "Brugerne blev hentet!",
+      data: result,
+      statusCode: 200,
+    });
   } catch (error) {
     console.error("Error fetching users:", error);
     return res.status(500).send({
       status: "error",
       message: "Internal server error",
       error: error.message,
+      statusCode: 500,
     });
   }
 });
 
 // POST
-userRoute.post("/user", upload.single("image"), async (req, res) => {
+userRoute.post("/user", auth, upload.single("image"), async (req, res) => {
   try {
     const { name, email, role, password } = req.body;
 
@@ -54,6 +56,7 @@ userRoute.post("/user", upload.single("image"), async (req, res) => {
         status: "error",
         message: "All fields (name, email, role, password) are required",
         data: [],
+        statusCode: 400,
       });
     }
 
@@ -67,17 +70,19 @@ userRoute.post("/user", upload.single("image"), async (req, res) => {
 
     const result = await createUser(user);
 
-    if (result.status === "error") {
-      return res.status(500).send(result);
-    }
-
-    return res.status(201).send(result);
+    return res.status(201).send({
+      status: "ok",
+      message: "Brugeren blev oprettet med success!",
+      data: result,
+      statusCode: 201,
+    });
   } catch (error) {
     console.error("Error creating user:", error);
     return res.status(500).send({
       status: "error",
       message: "Internal server error",
       error: error.message,
+      statusCode: 500,
     });
   }
 });
@@ -136,7 +141,12 @@ userRoute.put("/user", auth, upload.single("image"), async (req, res) => {
       return res.status(500).send(result);
     }
 
-    return res.status(200).send(result);
+    return res.status(201).send({
+      status: "ok",
+      message: "Brugeren blev opdateret med success!",
+      data: result,
+      statusCode: 201,
+    });
   } catch (error) {
     console.error("Error updating user:", error);
     return res.status(500).send({
@@ -172,7 +182,12 @@ userRoute.delete("/user/:id", auth, async (req, res) => {
       return res.status(500).send(result);
     }
 
-    return res.status(200).send(result);
+    return res.status(201).send({
+      status: "ok",
+      message: "Brugeren blev slettet med success!",
+      data: result.name,
+      statusCode: 201,
+    });
   } catch (error) {
     console.error("Error deleting user:", error);
     return res.status(500).send({
@@ -206,7 +221,12 @@ userRoute.get("/user/:id", async (req, res) => {
       return res.status(500).send(result);
     }
 
-    return res.status(200).send(result);
+    return res.status(201).send({
+      status: "ok",
+      message: "Brugeren blev hentet med success!",
+      data: result,
+      statusCode: 201,
+    });
   } catch (error) {
     console.error("Error fetching user:", error);
     return res.status(500).send({

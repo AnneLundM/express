@@ -7,9 +7,15 @@ import {
   updateProduct,
 } from "../../handlers/products/product.handler.js";
 import multer from "multer";
+import auth from "../../middleware/auth.middleware.js";
 
 const productRoute = express.Router();
 
+/* Konfiguration til fil-upload med multer:
+Her definerer vi, hvor og hvordan uploadede filer skal gemmes.
+`destination` angiver mappen hvor filerne skal placeres (uploads/products).
+`filename` bestemmer navnet på filerne – her bruger vi tidspunktet (Date.now())
+kombineret med det oprindelige filnavn, så vi undgår at overskrive filer. */
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/products");
@@ -30,6 +36,7 @@ productRoute.get("/products", async (req, res) => {
       status: "ok",
       message: "Produkterne blev hentet!",
       data: result,
+      statusCode: 200,
     });
   } catch (error) {
     console.error("Server-fejl:", error);
@@ -37,50 +44,57 @@ productRoute.get("/products", async (req, res) => {
       status: "error",
       message: "Server-fejl",
       error: error.message,
+      statusCode: 500,
     });
   }
 });
 
 // Create
-productRoute.post("/product", upload.single("image"), async (req, res) => {
-  try {
-    const { title, description, price, category } = req.body;
-    // const image = req.file ? `${req.file.filename}` : "";
+productRoute.post(
+  "/product",
+  auth,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { title, description, price, category, image } = req.body;
 
-    if (!title) {
-      return res.status(400).send({
+      if (!title) {
+        return res.status(400).send({
+          status: "error",
+          message: "Produktet skal have en titel!",
+        });
+      }
+
+      const product = { title, description, price, category, image };
+
+      // req.file bliver automatisk tilføjet af multer
+      if (req.file) {
+        product.image =
+          process.env.SERVER_HOST + "/uploads/products/" + req.file.filename;
+      }
+
+      const result = await createProduct(product);
+
+      return res.status(201).send({
+        status: "ok",
+        message: "Produktet blev oprettet med success!",
+        data: result,
+        statusCode: 201,
+      });
+    } catch (error) {
+      console.error("Server-fejl:", error);
+      return res.status(500).send({
         status: "error",
-        message: "Produktet skal have en titel!",
+        message: "Server-fejl",
+        error: error.message,
+        statusCode: 500,
       });
     }
-
-    const product = { title, description, price, category };
-
-    // req.file bliver automatisk tilføjet af multer
-    if (req.file) {
-      product.image =
-        process.env.SERVER_HOST + "/uploads/products/" + req.file.filename;
-    }
-
-    const result = await createProduct(product);
-
-    return res.status(201).send({
-      status: "Oprettet",
-      message: "Produktet blev oprettet med success!",
-      data: result,
-    });
-  } catch (error) {
-    console.error("Server-fejl:", error);
-    return res.status(500).send({
-      status: "error",
-      message: "Server-fejl",
-      error: error.message,
-    });
   }
-});
+);
 
 // Update
-productRoute.put("/product", upload.single("image"), async (req, res) => {
+productRoute.put("/product", auth, upload.single("image"), async (req, res) => {
   try {
     const { id, title, description, price, category } = req.body;
 
@@ -118,6 +132,7 @@ productRoute.put("/product", upload.single("image"), async (req, res) => {
       status: "ok",
       message: "Produkt opdateret!",
       data: result,
+      statusCode: 200,
     });
   } catch (error) {
     console.error("Error updating product:", error);
@@ -125,12 +140,13 @@ productRoute.put("/product", upload.single("image"), async (req, res) => {
       status: "error",
       message: "Internal server error",
       error: error.message,
+      statusCode: 500,
     });
   }
 });
 
 // Delete
-productRoute.delete("/product/:id", async (req, res) => {
+productRoute.delete("/product/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -147,6 +163,7 @@ productRoute.delete("/product/:id", async (req, res) => {
       status: "ok",
       message: "Produkt slettet!",
       data: result.title,
+      statusCode: 200,
     });
   } catch (error) {
     console.error("Der skete en fejl:", error);
@@ -154,6 +171,7 @@ productRoute.delete("/product/:id", async (req, res) => {
       status: "error",
       product: "Internal server error",
       error: error.message,
+      statusCode: 500,
     });
   }
 });
@@ -175,6 +193,7 @@ productRoute.get("/product/:id", async (req, res) => {
       status: "ok",
       message: "Produkt hentet!",
       data: product,
+      statusCode: 200,
     });
   } catch (error) {
     console.error("Fejl ved hentning af produkt:", error);
@@ -182,6 +201,7 @@ productRoute.get("/product/:id", async (req, res) => {
       status: "error",
       message: "Intern serverfejl",
       error: error.message,
+      statusCode: 500,
     });
   }
 });
