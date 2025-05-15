@@ -4,6 +4,7 @@ import {
   deleteMessage,
   getMessageById,
   getMessages,
+  updateMessage,
 } from "../../handlers/messages/message.handler.js";
 import auth from "../../middleware/auth.middleware.js";
 
@@ -34,7 +35,7 @@ messageRoute.get("/messages", auth, async (req, res) => {
 // Create
 messageRoute.post("/message", async (req, res) => {
   try {
-    const { email, name, subject, message } = req.body;
+    const { email, name, subject, message, isRead } = req.body;
 
     if (!email) {
       return res.status(400).send({
@@ -43,7 +44,7 @@ messageRoute.post("/message", async (req, res) => {
       });
     }
 
-    const data = { email, name, subject, message };
+    const data = { email, name, subject, message, isRead };
 
     const result = await createMessage(data);
 
@@ -58,6 +59,42 @@ messageRoute.post("/message", async (req, res) => {
     return res.status(500).send({
       status: "error",
       message: "Server-fejl",
+      error: error.message,
+      statusCode: 500,
+    });
+  }
+});
+
+// Update
+messageRoute.put("/message", auth, async (req, res) => {
+  try {
+    const { id, email, name, subject, message, isRead } = req.body;
+
+    if (!id) {
+      return res.status(400).send({
+        status: "error",
+        message: "Besked ID mangler!",
+        data: [],
+      });
+    }
+
+    // Saml beskeddata i et objekt
+    const messageData = { id, email, name, subject, message, isRead };
+
+    // Send det videre som argument til handler
+    const result = await updateMessage(messageData);
+
+    return res.status(200).send({
+      status: "ok",
+      message: "Besked opdateret!",
+      data: result,
+      statusCode: 200,
+    });
+  } catch (error) {
+    console.error("Error updating message:", error);
+    return res.status(500).send({
+      status: "error",
+      message: "Internal server error",
       error: error.message,
       statusCode: 500,
     });

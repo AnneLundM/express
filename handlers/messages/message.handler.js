@@ -24,6 +24,30 @@ export const createMessage = async (body) => {
   }
 };
 
+// Update
+export const updateMessage = async (body) => {
+  try {
+    await dbConnect();
+    const message = await messageModel.findById(body.id);
+
+    if (!message) {
+      return {
+        status: "error",
+        message: "Besked ikke fundet",
+        data: [],
+      };
+    }
+
+    const { id, ...updateData } = body;
+
+    const updatedMessage = await messageModel.findByIdAndUpdate(id, updateData);
+
+    return updatedMessage;
+  } catch (error) {
+    throw new Error("Opdatering af besked fejlede: " + error.message);
+  }
+};
+
 // Delete
 export const deleteMessage = async (id) => {
   try {

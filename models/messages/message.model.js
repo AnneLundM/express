@@ -9,6 +9,7 @@ const messageSchema = new Schema(
     name: { type: String },
     subject: { type: String },
     message: { type: String },
+    isRead: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
